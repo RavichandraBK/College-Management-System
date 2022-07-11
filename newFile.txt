@@ -1,0 +1,195 @@
+CREATE DATABASE college;
+\c college;
+CREATE TABLE Student(student_id int NOT NULL PRIMARY KEY, fname varchar(40) NOT NULL, lname varchar(40) NOT NULL, Address varchar(40) NOT NULL, DOB date NOT NULL, college_joined_date DATE CHECK(college_joined_date > DOB) );
+CREATE TABLE Course(course_id varchar(40) NOT NULL PRIMARY KEY, course_name varchar(40));
+ALTER TABLE student ADD COLUMN course_id varchar(40) references course(course_id);
+CREATE TABLE Lecturer(lecturer_id int NOT NULL PRIMARY KEY, lecturer_name varchar(40), course_id varchar(40) NOT NULL);
+CREATE TABLE Subjects(subject_id varchar(40) NOT NULL PRIMARY KEY, subject_name varchar(40) NOT NULL, lecturer_id int references lecturer(lecturer_id));
+ALTER TABLE lecturer ADD FOREIGN KEY(course_id) references course(course_id) ON DELETE CASCADE;
+
+
+college=# \d
+          List of relations
+ Schema |   Name   | Type  |  Owner   
+--------+----------+-------+----------
+ public | course   | table | postgres
+ public | lecturer | table | postgres
+ public | student  | table | postgres
+ public | subjects | table | postgres
+(4 rows)
+
+
+college=# \d student;
+                            Table "public.student"
+       Column        |         Type          | Collation | Nullable | Default 
+---------------------+-----------------------+-----------+----------+---------
+ student_id          | integer               |           | not null | 
+ fname               | character varying(40) |           | not null | 
+ lname               | character varying(40) |           | not null | 
+ address             | character varying(40) |           | not null | 
+ dob                 | date                  |           | not null | 
+ college_joined_date | date                  |           |          | 
+ course_id           | character varying(40) |           |          | 
+Indexes:
+    "student_pkey" PRIMARY KEY, btree (student_id)
+Check constraints:
+    "student_check" CHECK (college_joined_date > dob)
+Foreign-key constraints:
+    "student_course_id_fkey" FOREIGN KEY (course_id) REFERENCES course(course_id)
+
+
+college=# \d course;
+                        Table "public.course"
+   Column    |         Type          | Collation | Nullable | Default 
+-------------+-----------------------+-----------+----------+---------
+ course_id   | character varying(40) |           | not null | 
+ course_name | character varying(40) |           |          | 
+Indexes:
+    "course_pkey" PRIMARY KEY, btree (course_id)
+Referenced by:
+    TABLE "lecturer" CONSTRAINT "lecturer_course_id_fkey" FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE
+    TABLE "student" CONSTRAINT "student_course_id_fkey" FOREIGN KEY (course_id) REFERENCES course(course_id)
+
+
+
+
+
+college=# \d subjects;
+                        Table "public.subjects"
+    Column    |         Type          | Collation | Nullable | Default 
+--------------+-----------------------+-----------+----------+---------
+ subject_id   | character varying(40) |           | not null | 
+ subject_name | character varying(40) |           | not null | 
+ lecturer_id  | integer               |           |          | 
+Indexes:
+    "subjects_pkey" PRIMARY KEY, btree (subject_id)
+Foreign-key constraints:
+    "subjects_lecturer_id_fkey" FOREIGN KEY (lecturer_id) REFERENCES lecturer(lecturer_id)
+
+
+
+college=# \d lecturer;
+                        Table "public.lecturer"
+    Column     |         Type          | Collation | Nullable | Default 
+---------------+-----------------------+-----------+----------+---------
+ lecturer_id   | integer               |           | not null | 
+ lecturer_name | character varying(40) |           |          | 
+ course_id     | character varying(40) |           | not null | 
+Indexes:
+    "lecturer_pkey" PRIMARY KEY, btree (lecturer_id)
+Foreign-key constraints:
+    "lecturer_course_id_fkey" FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE
+Referenced by:
+    TABLE "subjects" CONSTRAINT "subjects_lecturer_id_fkey" FOREIGN KEY (lecturer_id) REFERENCES lecturer(lecturer_id)
+
+
+
+
+
+
+INSERT INTO student VALUES(1, 'Krishna','Vasudev', 'Bangalore', '1999-10-19', '2018-08-06', 'UE18CS');
+INSERT INTO student VALUES(2, 'Hrishikesh','R', 'Bangalore', '2000-09-19', '2018-08-06', 'UE18ME');
+INSERT INTO student VALUES(3, 'Nityanand','T', 'Mumbai','2001-07-23', '2018-08-07',  'UE18CS');
+INSERT INTO student VALUES(4, 'Ashray','V', 'Chennai', '1999-02-07', '2018-08-06',  'UE18CS');
+INSERT INTO student VALUES(5, 'Govind','K', 'Belgaum',  '2000-01-14', '2018-08-09','UE18CS');
+INSERT INTO student VALUES(6, 'Tamal Krishna','Dev', 'Kolkata', '2001-06-28', '2018-08-05',  'UE18CS');
+INSERT INTO student VALUES(7, 'Abhishek','D', 'Mathura','2000-06-17', '2018-08-06', 'UE18ME');
+INSERT INTO student VALUES(8, 'Vrajesh','N', 'Pune', '2000-03-07', '2018-08-06',  'UE18ME');
+INSERT INTO student VALUES(9, 'Narayanan','Das', 'Vrindavan',  '1999-01-19', '2018-08-06','UE18ME');
+INSERT INTO student VALUES(10, 'Sachin','G', 'Delhi', '2001-02-11', '2018-08-07', 'UE18ME');
+INSERT INTO student VALUES(11, 'Amit','Singh', 'Bangalore', '1998-10-12', '2018-08-10', 'UE18CS');
+INSERT INTO student VALUES(12, 'Akhilesh','Singh', 'Rajasthan', '1998-10-09', '2018-08-06', 'UE18CS');
+INSERT INTO student VALUES(13, 'Sachin','M', 'Delhi', '2000-03-30', '2018-08-05', 'UE18CS');
+
+
+college=# SELECT * FROM student;
+ student_id |     fname     |  lname  |  address  |    dob     | college_joined_date | course_id 
+------------+---------------+---------+-----------+------------+---------------------+-----------
+          1 | Krishna       | Vasudev | Bangalore | 1999-10-19 | 2018-08-06          | UE18CS
+          2 | Hrishikesh    | R       | Bangalore | 2000-09-19 | 2018-08-06          | UE18ME
+          3 | Nityanand     | T       | Mumbai    | 2001-07-23 | 2018-08-07          | UE18CS
+          4 | Ashray        | V       | Chennai   | 1999-02-07 | 2018-08-06          | UE18CS
+          5 | Govind        | K       | Belgaum   | 2000-01-14 | 2018-08-09          | UE18CS
+          6 | Tamal Krishna | Dev     | Kolkata   | 2001-06-28 | 2018-08-05          | UE18CS
+          7 | Abhishek      | D       | Mathura   | 2000-06-17 | 2018-08-06          | UE18ME
+          8 | Vrajesh       | N       | Pune      | 2000-03-07 | 2018-08-06          | UE18ME
+          9 | Narayanan     | Das     | Vrindavan | 1999-01-19 | 2018-08-06          | UE18ME
+         10 | Sachin        | G       | Delhi     | 2001-02-11 | 2018-08-07          | UE18ME
+         11 | Amit          | Singh   | Bangalore | 1998-10-12 | 2018-08-10          | UE18CS
+         12 | Akhilesh      | Singh   | Rajashtan | 1998-10-09 | 2018-08-06          | UE18CS
+         13 | Sachin        | M       | Delhi     | 2000-03-30 | 2018-08-05          | UE18CS
+(13 rows)
+
+
+
+
+INSERT INTO course VALUES('UE18CS', 'Computer Science');
+INSERT INTO course VALUES('UE18CS', 'Computer Science');
+
+college=# SELECT * FROM course;
+ course_id |   course_name    
+-----------+------------------
+ UE18CS    | Computer Science
+ UE18ME    | Mechanical
+(2 rows)
+
+
+INSERT INTO lecturer VALUES(1781, 'Jayshree', 'UE18CS');
+INSERT INTO lecturer VALUES(1782, 'Jyoti Prakash', 'UE18ME');
+INSERT INTO lecturer VALUES(1783, 'Vishnu Sai Reddy', 'UE18CS');
+INSERT INTO lecturer VALUES(1784, 'Shravani', 'UE18ME');
+INSERT INTO lecturer VALUES(1785, 'Preeti R', 'UE18CS');
+INSERT INTO lecturer VALUES(1786, 'Narayan', 'UE18ME');
+INSERT INTO lecturer VALUES(1787, 'Mukund', 'UE18CS');
+INSERT INTO lecturer VALUES(1788, 'Srikar', 'UE18ME');
+INSERT INTO lecturer VALUES(1789, 'Shrihari', 'UE18CS');
+INSERT INTO lecturer VALUES(1790, 'Ramachandra', 'UE18ME');
+
+
+
+college=# SELECT * FROM lecturer;
+ lecturer_id |  lecturer_name   | course_id 
+-------------+------------------+-----------
+        1781 | Jayshree         | UE18CS
+        1782 | Jyoti Prakash    | UE18ME
+        1783 | Vishnu Sai Reddy | UE18CS
+        1784 | Shravani         | UE18ME
+        1785 | Preeti R         | UE18CS
+        1786 | Narayan          | UE18ME
+        1787 | Mukund           | UE18CS
+        1788 | Srikar           | UE18ME
+        1789 | Shrihari         | UE18CS
+        1790 | Ramachandra      | UE18ME
+(10 rows)
+
+
+
+
+INSERT INTO subjects VALUES('CS18MPCA', 'Microprocessors', 1781);
+INSERT INTO subjects VALUES('ME18HT', 'Heat Transfer', 1782);
+INSERT INTO subjects VALUES('CS18DBMS', 'Database Managament', 1783);
+INSERT INTO subjects VALUES('ME18FM', 'Fluid Mechanics', 1784);
+INSERT INTO subjects VALUES('CS18DAA', 'Algirithm', 1785);
+INSERT INTO subjects VALUES('ME18MCM', 'Metal Casting and Machining', 1786);
+INSERT INTO subjects VALUES('CS18DS', 'Data Structures', 1787);
+INSERT INTO subjects VALUES('ME18MFP', 'Metal Forming Process', 1788);
+INSERT INTO subjects VALUES('CS18DML', 'Discrete Mathematics and Logic', 1789);
+INSERT INTO subjects VALUES('ME18DME', 'Design of Machine Elements', 1790);
+
+
+college=# SELECT * FROM subjects;
+ subject_id |          subject_name          | lecturer_id 
+------------+--------------------------------+-------------
+ CS18MPCA   | Microprocessors                |        1781
+ ME18HT     | Heat Transfer                  |        1782
+ CS18DBMS   | Database Managament            |        1783
+ ME18FM     | Fluid Mechanics                |        1784
+ CS18DAA    | Algirithm                      |        1785
+ ME18MCM    | Metal Casting and Machining    |        1786
+ CS18DS     | Data Structures                |        1787
+ ME18MFP    | Metal Forming Process          |        1788
+ CS18DML    | Discrete Mathematics and Logic |        1789
+ ME18DME    | Design of Machine Elements     |        1790
+(10 rows)
+
+
